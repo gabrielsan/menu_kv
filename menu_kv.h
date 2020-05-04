@@ -1,6 +1,14 @@
 #ifndef MENU_KV_
 #define MENU_KV_
 
-aekfjdlsfajs
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#endif MENU_KV_
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* MENU_KV_ */

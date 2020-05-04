@@ -1,24 +1,6 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "TimerOne.h"
-
-#include <OneWire.h>
-#include <DallasTemperature.h>
-#include <LiquidCrystal.h>
-
-// Data wire is plugged into port 2 on the Arduino
-#define ONE_WIRE_BUS 4
-#define TEMPERATURE_PRECISION 12 // Lower resolution
-
-// LCD
-#define LCD_PIN_RS 10
-#define LCD_PIN_EN 11
-#define LCD_PIN_D4 12
-#define LCD_PIN_D5 13
-#define LCD_PIN_D6 A0
-#define LCD_PIN_D7 A1
-
 // BUTTONS
 #define BT_UP_PIN     7
 #define BT_DOWN_PIN   8
@@ -34,15 +16,10 @@
 #define BT_CANCEL	0x08
 
 
-// outputs
-
 #define TIMERONE_TICK_US 50000
 #define TIMERONE_TICK_MS (TIMERONE_TICK_US / 1000)
 #define LOOP_DELAY_MS 50
 
-// HEATER
-#define HLT_HEATER_PIN  5
-#define BOIL_HEATER_PIN 3
 
 // MENU
 #define MENU_FLAGS_EDITING 0x40
@@ -81,12 +58,6 @@ enum menuEvent_en {
 #define TTFLG_ON 0x1
 #define TTFLG_UNDERFLOWED 0x2
 
-struct tickTimer_st {
-	uint32_t tickToCnt;
-	int16_t timeMin;
-	uint16_t flags;
-};
-
 struct bt_st {
 	uint32_t tick100ms;
 	uint8_t pin;
@@ -122,24 +93,10 @@ struct menuItem_st {
 	enum menuFormat_en mFormat;
 };
 
-// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
-OneWire oneWire(ONE_WIRE_BUS);
-// Pass our oneWire reference to Dallas Temperature. 
-DallasTemperature sensors(&oneWire); 
-// initialize the library with the numbers of the interface pins
-LiquidCrystal lcd(LCD_PIN_RS, LCD_PIN_EN, LCD_PIN_D4, LCD_PIN_D5, LCD_PIN_D6, LCD_PIN_D7);
-// buttons ctx
 static struct bt_st btup, btdown, btenter, btcancel;
 // global tick
 static volatile uint32_t g_tick100ms = 0;
 static volatile uint32_t g_tick50ms = 0;
-
-#define SENSOR_DS18B20_HLT                       0x28FFA45B00160130
-#define SENSOR_DS18B20_CHILLER                   0x28FF60A600160203
-#define SENSOR_DS18B20_BOIL                      0x28FF5BE9C21603CF
-DeviceAddress tempSensorAddr_HLT     = { 0x28, 0xFF, 0xA4, 0x5B, 0x00, 0x16, 0x01, 0x30 };
-DeviceAddress tempSensorAddr_BOIL = { 0x28, 0xFF, 0x60, 0xA6, 0x00, 0x16, 0x02, 0x03 };
-DeviceAddress tempSensorAddr_CHILLER    = { 0x28, 0xFF, 0x5B, 0xE9, 0xC2, 0x16, 0x03, 0xCF };
 
 // parameters
 // Temperature read for Hot Liquor Tank (Line) kettle sensor
@@ -197,8 +154,6 @@ static struct menu_st gouglaszMenu = {
 // BUTTONS
 static uint32_t bt_read(struct bt_st *btn);
 static void bt_init(struct bt_st *btn, const uint8_t pin);
-// ISR
-static void timer1_overflow_ISR(void);
 // MENU
 static void menu_display(struct menu_st *menu);
 static void menu_cursorDown(struct menu_st *menu);
@@ -214,7 +169,7 @@ static void bt_init(struct bt_st *btn, const uint8_t pin) {
 	btn->pin = pin;
 	btn->holdstep = 0;
 	btn->tick100ms = 0;
-	pinMode(pin, INPUT_PULLUP);
+	///pinMode(pin, INPUT_PULLUP);
 }
 
 static uint32_t bt_read(struct bt_st *btn) {
@@ -241,21 +196,6 @@ static uint32_t bt_read(struct bt_st *btn) {
 }
 
 static struct tickTimer_st hltTimerOn;
-
-// ISR
-static void timer1_overflow_ISR(void) {
-	g_tick100ms = ++g_tick50ms/2;
-	
-	//int heaterState;
-	//// HLT heater
-	//if (g_tick50ms%10 < p_hltHeaterPower.value/10) { heaterState = 1; } 
-	//else { heaterState = 0; }
-	//digitalWrite(HLT_HEATER_PIN, heaterState);
-	//// Boil heater
-	//if (g_tick50ms%10 < p_boilHeaterPower.value/10) { heaterState = 1; } 
-	//else { heaterState = 0; }
-	//digitalWrite(BOIL_HEATER_PIN, heaterState);
-}
 
 // MENU
 static void menu_incParam(struct menu_st *menu) {
@@ -340,8 +280,8 @@ static void menu_display(struct menu_st *menu) {
 		} else {
 			break; // no more items to display.
 		}
-		lcd.setCursor(0, line);
-		lcd.print(lineStr);
+		//lcd.setCursor(0, line);
+		//lcd.print(lineStr);
 	}
 }
 
@@ -415,57 +355,7 @@ static void menu_handleEvent(struct menu_st *menu, const enum menuEvent_en event
 		}
 	}
 }
-
-static void appHLT_timerToTurnOn(void);
-static void appHLT_tempControlHyst(void);
-
-// SETUP - runs once.
-void setup(void) {
-  memset(&hltTimerOn, 0, sizeof(struct tickTimer_st));
-
-  // set up the LCD's number of columns and rows: 
-  lcd.begin(20, 4);
-  // Print the splash screen msg.
-  lcd.setCursor(0, 0);
-  lcd.print("********************");
-  lcd.setCursor(0, 1);
-  lcd.print("****  UN-NAMED  ****");
-  lcd.setCursor(0, 2);
-  lcd.print("****  BREW v3.0 ****");
-  lcd.setCursor(0, 3);
-  lcd.print("********************");
-  delay(2000);
-
-  // IO pin configuration
-  
-  pinMode(HLT_HEATER_PIN, OUTPUT);
-  pinMode(BOIL_HEATER_PIN, OUTPUT);
-  
-  digitalWrite(HLT_HEATER_PIN, 0);
-  digitalWrite(BOIL_HEATER_PIN, 0);
-  
-  bt_init(&btup, BT_UP_PIN);
-  bt_init(&btdown, BT_DOWN_PIN);
-  bt_init(&btenter, BT_ENTER_PIN);
-  bt_init(&btcancel, BT_CANCEL_PIN);
-
-  // Timer one interrupt
-  Timer1.initialize(TIMERONE_TICK_US); // initialize timer1.
-  Timer1.attachInterrupt(timer1_overflow_ISR);  // attaches callback() as a timer overflow interrupt
-
-  // sesor temperatures
-  sensors.begin();
-  sensors.setResolution(tempSensorAddr_HLT, TEMPERATURE_PRECISION);
-  sensors.setResolution(tempSensorAddr_BOIL, TEMPERATURE_PRECISION);
-  sensors.setResolution(tempSensorAddr_CHILLER, TEMPERATURE_PRECISION);
-  sensors.setWaitForConversion(false);
-  sensors.requestTemperatures();
-  
-  Serial.begin(9600);
-}
-
-// LOOP - runs after setup, in loop, duh!
-void loop(void) {
+/*
   enum menuEvent_en mevent = MNEV_NONE;
   // BUTTONS
   uint32_t btret;
@@ -480,79 +370,4 @@ void loop(void) {
   // MENU
   menu_handleEvent(&gouglaszMenu, mevent);
   menu_display(&gouglaszMenu);
-
-  // Update sensor temperatures
-  float tempf;
-  
-  tempf = sensors.getTempC(tempSensorAddr_HLT);
-  p_hltLineTempRead.value = (int16_t)(tempf*10);
-  
-  tempf = sensors.getTempC(tempSensorAddr_BOIL);
-  p_boilTempRead.value = (int16_t)(tempf*10);
-  
-  tempf = sensors.getTempC(tempSensorAddr_CHILLER);
-  p_chillerTempRead.value = (int16_t)(tempf*10);
-  
-  sensors.requestTemperatures(); // Send the command to get temperatures
-
-  appHLT_timerToTurnOn();
-  appHLT_tempControlHyst();
-  appBOIL_tempControlHyst();
-  
-  delay(LOOP_DELAY_MS);
-}
-
-#define TIMERAPP_STOPPED 0
-#define TIMERAPP_RUNNING 1
-
-static void appHLT_timerToTurnOn(void) {
-  static int16_t time2Cook = 0;
-  static uint32_t timeSum = 0;
-  if (time2Cook != p_hltTime2Cook.value) {
-    // new timer configuration.
-    time2Cook = p_hltTime2Cook.value;
-    p_hltCookTimeLeft.value = time2Cook;
-    timeSum = millis();
-  }
-  if (p_hltCookTimeLeft.value > 0) {
-    if ((uint32_t)(millis() - timeSum) > 60000) {
-      timeSum = millis();
-      if (p_hltCookTimeLeft.value == 1) {
-        // turn HLT on
-        p_hltOn.value = 1;
-        p_boilOn.value = 1;
-        p_hltTime2Cook.value = 0;
-      }
-      p_hltCookTimeLeft.value--;
-    }
-  }
-}
-
-static void appHLT_tempControlHyst(void) {
-  if (p_hltOn.value == 1) {
-    if (p_hltLineTempRead.value > (p_hltTempSet.value + p_hltTempDelta.value)) {
-      digitalWrite(HLT_HEATER_PIN, 0);
-      Serial.println("Heater OFF");
-    } else if (p_hltLineTempRead.value < (p_hltTempSet.value)) {
-      digitalWrite(HLT_HEATER_PIN, 1);
-      Serial.println("Heater ON");
-    }
-  } else {
-    digitalWrite(HLT_HEATER_PIN, 0);
-  }
-}
-
-static void appBOIL_tempControlHyst(void) {
-  if (p_boilOn.value == 1) {
-    if (p_boilTempRead.value > (p_boilTempSet.value + p_boilTempDelta.value)) {
-      digitalWrite(BOIL_HEATER_PIN, 0);
-      Serial.println("Heater OFF");
-    } else if (p_boilTempRead.value < (p_boilTempSet.value)) {
-      digitalWrite(BOIL_HEATER_PIN, 1);
-      Serial.println("Heater ON");
-    }
-  } else {
-    digitalWrite(BOIL_HEATER_PIN, 0);
-  }
-}
-
+*/
