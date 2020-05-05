@@ -28,8 +28,8 @@ extern "C" {
 static struct kv_i32_st kv_##name_ = {                                     \
 	.op = options_,                                                        \
 	.val = (int32_t)init_val_,                                             \
-	.max = min_val_,                                                       \
-	.min = max_val_,                                                       \
+	.max = max_val_,                                                       \
+	.min = min_val_,                                                       \
 	.inc = inc_val_,                                                       \
 };
 
