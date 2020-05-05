@@ -19,7 +19,7 @@ extern "C" {
 
 #define KV_IS_RDONLY(param) ((param->op & KV_OP_RDONLY) != 0)
 
-#define KV_NAME(name_) (kv##name_)
+#define KV_NAME(name_) (kv_##name_)
 
 #define M_ENTRY_KV(desc_, name_) {.desc = desc_, .mArg = (void *)&kv_##name_, .mFormat = MFORMAT_PARAM}
 
