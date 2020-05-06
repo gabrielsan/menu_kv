@@ -76,6 +76,7 @@ struct menuItem_st {
 	enum menuFormat_en mFormat;
 };
 
+void menu_cancel(struct menu_st *menu);
 void menu_display(struct menu_st *menu, const int line, char *line_buff, const int size);
 void menu_handleEvent(struct menu_st *menu, const enum menuEvent_en event);
 

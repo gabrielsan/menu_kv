@@ -48,7 +48,7 @@ static void menu_select(struct menu_st *menu) {
 	const struct menuItem_st *menuItem = &menu->list[menu->cursorPos];
 	struct kv_i32_st *param = (struct kv_i32_st *)menuItem->mArg;
 	if ((menu->flags & MENU_FLAGS_EDITING) != 0) {
-		menu->flags &= ~MENU_FLAGS_EDITING; // leave editing.
+		menu->flags &= ~MENU_FLAGS_EDITING; // leave editing
 		param->val = menu->paramcpy;
 	} else {
 		if (menuItem->mFormat == MFORMAT_PARAM) {
@@ -143,6 +143,13 @@ static void paramGetValueStr(struct kv_i32_st *param, char *strout) {
 		decimal = decimal < 0 ? -decimal : decimal; // abs.
 		sprintf(valuestr, ".%i", decimal);
 		strcat(strout, valuestr); 
+	}
+}
+
+void menu_cancel(struct menu_st *menu) {
+	const struct menuItem_st *menuItem = &menu->list[menu->cursorPos];
+	if ((menu->flags & MENU_FLAGS_EDITING) != 0) {
+		menu->flags &= ~MENU_FLAGS_EDITING; // leave editing
 	}
 }
 
