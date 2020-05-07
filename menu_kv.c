@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 #include "menu_kv.h"
 #include <string.h>
 #include <stdint.h>

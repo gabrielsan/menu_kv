@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 #ifndef MENU_KV_
 #define MENU_KV_
 
