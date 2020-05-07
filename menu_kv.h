@@ -9,6 +9,11 @@ extern "C" {
 
 #include <stdint.h>
 
+#define MENU_KV_VERSION_MAJOR                    0
+#define MENU_KV_VERSION_MINOR                    1
+#define MENU_KV_VERSION_PATCH                    0
+#define MENU_KV_VERSION_INFO                     ""
+
 #define TTFLG_ON 0x1
 #define TTFLG_UNDERFLOWED 0x2
 
@@ -41,13 +46,6 @@ enum menuEvent_en {
 	MNEV_ENTER,
 	MNEV_CANCEL,
 	MNEV_NONE,
-};
-
-
-struct bt_st {
-	uint32_t tick100ms;
-	uint8_t holdstep;
-	uint8_t reserved[2]; // align(4)
 };
 
 struct kv_i32_st {
