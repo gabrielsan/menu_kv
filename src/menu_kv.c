@@ -3,6 +3,7 @@
 #include "menu_kv.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #define MENU_FLAGS_EDITING 0x40
 
