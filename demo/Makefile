@@ -8,6 +8,7 @@ SRCS = main.c
 vpath %.c ../src
 vpath %.h ../src
 SRCS += menu_kv.c
+SRCS += kv.c
 CFLAGS += -I ../src
 
 

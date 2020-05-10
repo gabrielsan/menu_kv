@@ -2,11 +2,12 @@
 #include <stdio.h>
 
 #include "menu_kv.h"
+#include "kv.h"
 
 int main(int argc, char **argv) {
-    printf("Hello World!");
+    printf("Hello World!\n");
 
-    menu_cancel(NULL);
+    kv_print();
 
     exit(0);
 }
