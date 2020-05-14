@@ -101,6 +101,15 @@ uint8_t kv_enum_get_nitems(const keyID key) {
     return (uint8_t)(kv_enum_meta[key_rel].max_val + 1);
 }
 
+int32_t kv_enum_read_std(const keyID key, uint8_t *val) {
+    if (key <=  KV_ENUM_LIST_START || key >= KV_ENUM_LIST_END) return -1;
+
+    keyID key_rel = key - (KV_ENUM_LIST_START + 1);
+
+    *val = kv_enum_meta[key_rel].std_val;
+    return 0;
+}
+
 int32_t kv_enum_read(const keyID key, uint8_t *val) {
     if (key <=  KV_ENUM_LIST_START || key >= KV_ENUM_LIST_END) return -1;
 
@@ -124,6 +133,14 @@ int32_t kv_enum_write(const keyID key, const uint8_t val) {
     return 0;
 }
 
+int32_t kv_i32_read_std(const keyID key, int32_t *val) {
+    if (key <= KV_I32_LIST_START || key >= KV_I32_LIST_END) return -1;
+
+    keyID key_rel = key - (KV_I32_LIST_START + 1);
+
+    *val = kv_i32_meta[key_rel].std_val;
+    return 0;
+}
 
 int32_t kv_i32_read(const keyID key, int32_t *val) {
     if (key <= KV_I32_LIST_START || key >= KV_I32_LIST_END) return -1;

@@ -29,8 +29,10 @@ typedef enum {
 int32_t kv_init(void);
 char const * kv_enum_get_string(const keyID key, const uint8_t val);
 uint8_t kv_enum_get_nitems(const keyID key);
+int32_t kv_enum_read_std(const keyID key, uint8_t *val);
 int32_t kv_enum_read(const keyID key, uint8_t *val);
 int32_t kv_enum_write(const keyID key, const uint8_t val);
+int32_t kv_i32_read_std(const keyID key, int32_t *val);
 int32_t kv_i32_read(const keyID key, int32_t *val);
 int32_t kv_i32_write(const keyID key, const int32_t val);
 
