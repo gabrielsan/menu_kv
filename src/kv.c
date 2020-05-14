@@ -1,31 +1,33 @@
-#include "kv.h"
 #include <stdint.h>
 #include <stdio.h>
+#include "kv.h"
 
 #ifndef KV_META_ATTR
 #define KV_META_ATTR aligned
 #endif /* KV_META_ATTR */
 
-#define KV_I32_OP_META(keyname_, std_val_, min_val_, max_val_, options_)            \
-{                                                                                   \
-    .std_val = (uint32_t)std_val_,                                                  \
-    .max_val = (uint32_t)max_val_,                                                  \
-    .min_val = (uint32_t)min_val_,                                                  \
-    .op = options_,                                                                 \
-    .ptr = NULL,                                                                    \
+#define KV_I32_OP_META(keyname_, std_val_, min_val_, max_val_, options_)  \
+{                                                                         \
+    .std_val = (uint32_t)std_val_,                                        \
+    .max_val = (uint32_t)max_val_,                                        \
+    .min_val = (uint32_t)min_val_,                                        \
+    .op = options_,                                                       \
+    .ptr = NULL,                                                          \
 },
 
-#define KV_ENUM_OP_META(keyname_, std_val_, max_val_, ...)  \
-{                                                           \
-    .std_val = (uint32_t)std_val_,                          \
-    .max_val = (uint32_t)(max_val_ - 1),                    \
-    .min_val = 0,                                           \
-    .op = 0,                                                \
-    .ptr = kv_enum_strlist_ ## keyname_,                    \
+#define KV_ENUM_OP_META(keyname_, std_val_, max_val_, ...)                \
+{                                                                         \
+    .std_val = (uint32_t)std_val_,                                        \
+    .max_val = (uint32_t)(max_val_ - 1),                                  \
+    .min_val = 0,                                                         \
+    .op = 0,                                                              \
+    .ptr = kv_enum_strlist_ ## keyname_,                                  \
 },
 
-#define KV_ENUM_OP_STR_LIST(keyname_, std_val_, max_val_, ...)                            \
-    static const char *kv_enum_strlist_ ## keyname_[] = { __VA_ARGS__ __VA_OPT__(,) NULL}; \
+#define KV_ENUM_OP_STR_LIST(keyname_, std_val_, max_val_, ...)            \
+static const char *kv_enum_strlist_ ## keyname_[] = {                     \
+    __VA_ARGS__ __VA_OPT__(,) NULL                                        \
+};
 
 typedef struct {
 	uint32_t op;
@@ -45,6 +47,7 @@ __attribute__ ((KV_META_ATTR))
 static const kvMeta kv_enum_meta[KV_ENUM_NITEMS] = {KV_ENUM_LIST(KV_ENUM_OP_META)};
 
 static int32_t kv_i32_value[KV_I32_NITEMS];
+
 static uint8_t kv_enum_value[KV_ENUM_NITEMS];
 
 int32_t kv_init(void) {

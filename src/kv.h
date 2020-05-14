@@ -6,27 +6,25 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-
-#define KV_I32_OP_ENUMERATOR(keyname_, std_val_, min_val_, max_val_, options_) keyname_,
-#define KV_ENUM_OP_ENUMERATOR(keyname_, std_val_, max_val_, ...) keyname_,
-
 #include "kv_conf.h"
 
+#define KV_ENUM_OP_ENUMERATOR(keyname_, std_val_, max_val_, ...) keyname_,
+#define KV_ENUM_NITEMS (KV_ENUM_LIST_END - KV_ENUM_LIST_START -1)
+
+#define KV_I32_OP_ENUMERATOR(keyname_, std_val_, min_val_, max_val_, options_) keyname_,
+#define KV_I32_NITEMS (KV_I32_LIST_END - KV_I32_LIST_START -1)
+
 typedef enum {
+    KV_ENUM_LIST_START,
+    KV_ENUM_LIST(KV_ENUM_OP_ENUMERATOR)
+    KV_ENUM_LIST_END,
 
     KV_I32_LIST_START,
     KV_I32_LIST(KV_I32_OP_ENUMERATOR)
     KV_I32_LIST_END,
 
-    KV_ENUM_LIST_START,
-    KV_ENUM_LIST(KV_ENUM_OP_ENUMERATOR)
-    KV_ENUM_LIST_END,
-
     KV_ENUM_SIZE,
 } keyID;
-
-#define KV_I32_NITEMS (KV_I32_LIST_END - KV_I32_LIST_START -1)
-#define KV_ENUM_NITEMS (KV_ENUM_LIST_END - KV_ENUM_LIST_START -1)
 
 int32_t kv_init(void);
 char const * kv_enum_get_string(const keyID key, const uint8_t val);
