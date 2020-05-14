@@ -6,6 +6,11 @@
 #define KV_META_ATTR aligned
 #endif /* KV_META_ATTR */
 
+#ifndef KV_ASSERT
+#define KV_ASSERT(x)                                                      \
+    if (!(x)) { for (;;); }
+#endif /* KV_ASSERT */
+
 #define KV_I32_OP_META(keyname_, std_val_, min_val_, max_val_, options_)  \
 {                                                                         \
     .std_val = (uint32_t)std_val_,                                        \
@@ -51,14 +56,22 @@ static int32_t kv_i32_value[KV_I32_NITEMS];
 static uint8_t kv_enum_value[KV_ENUM_NITEMS];
 
 int32_t kv_init(void) {
-    // set all enum values to standard value
     for (uint32_t k = 0; k < KV_ENUM_NITEMS; k++) {
-        kv_enum_value[k] = (uint8_t)kv_enum_meta[k].std_val;
+        // set all enum values to standard value
+        uint8_t enum_std = (uint8_t)kv_enum_meta[k].std_val;
+        uint8_t enum_max = (uint8_t)kv_enum_meta[k].max_val;
+        KV_ASSERT(enum_std <= enum_max);
+        kv_enum_value[k] = enum_std;
     }
 
-    // set all i32 values to standard value
     for (uint32_t k = 0; k < KV_I32_NITEMS; k++) {
-        kv_i32_value[k] = (int32_t)kv_i32_meta[k].std_val;
+        // set all i32 values to standard value
+        int32_t i32_std = (int32_t)kv_i32_meta[k].std_val;
+        int32_t i32_max = (int32_t)kv_i32_meta[k].max_val;
+        int32_t i32_min = (int32_t)kv_i32_meta[k].min_val;
+        KV_ASSERT(i32_std <= i32_max);
+        KV_ASSERT(i32_std >= i32_min);
+        kv_i32_value[k] = i32_std;
     }
 
     return 0;

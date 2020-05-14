@@ -5,7 +5,15 @@
 extern "C" {
 #endif
 
+#include <stdlib.h>
+
 #define KV_META_ATTR aligned (4)
+
+#define KV_ASSERT(x)                \
+    if (!(x)) {                     \
+            printf("%s:%d kv assertion\n", __FILE__, __LINE__);  \
+            exit(1);                \
+    }
 
 #define KV_I32_LIST(OP)                                              \
     OP(PARAM1, 1, -10, 10, 0)                                        \
